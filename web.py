@@ -5,7 +5,6 @@ from flask import Flask,redirect
 import os
 import json
 
-
 data={}
 if os.path.isfile("config.json") == True:
     print("配置文件存在,直接读取")

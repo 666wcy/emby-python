@@ -6,7 +6,7 @@
         "redirects" : "True",
         "password_key": "True",
         "password_value": "xxxx",
-          "replace_list ": [
+          "replace_list": [
             {"from": "/media/video/","to": "http://xxxx.weinb.top/shi/"},
             {"from": "/media/adult/","to": "http://xxxx.weinb.top/adult/emby/"}
 

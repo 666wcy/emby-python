@@ -15,8 +15,6 @@ if os.path.isfile("config.json") == True:
             jsonFile.close()
 
         try:
-
-
             main_site = data['main_site']
             main_port= data['main_port']
             new_port = data['new_port']
@@ -39,11 +37,11 @@ else:
 
     with open("config.json", "a") as file:  # 只需要将之前的”w"改为“a"即可，代表追加内容
         file.close()
+    exit()
 
 
 
 
-replace_list=[]
 
 app = Flask(__name__)
 
@@ -80,11 +78,13 @@ def proxy(path):
         MediaSourceId = flask.request.args.get('MediaSourceId')
         info_url = f"{main_site}emby/Items?Fields=Path&Ids={MediaSourceId}&api_key={api_key}"
         info_json = requests.get(url=info_url).json()
-
+        index_url = str(info_json['Items'][0]['Path'])
         for a in replace_list:
-            index_url = str(info_json['Items'][0]['Path']).replace(a['from'], a['to'])
+            print(info_json['Items'][0]['Path'],a['from'], a['to'])
+            index_url = index_url.replace(a['from'], a['to'])
         print(f"处理后的直链:{index_url}")
         if redirects=="True":
+
 
             true_result=requests.get(index_url,allow_redirects=False)
 
@@ -94,10 +94,12 @@ def proxy(path):
                 true_result = requests.post(index_url, allow_redirects=False, data=data)
 
             true_url=dict(true_result.headers)['Location']
+            print(f"重定向后的直链{true_url}")
+            return redirect(true_url)
         else:
             true_url=index_url
-        #print(true_url)
-        return redirect(true_url)
+
+            return redirect(true_url)
 
     elif "Download" in url and "Items" in url:
         MediaSourceId = flask.request.args.get('mediaSourceId')

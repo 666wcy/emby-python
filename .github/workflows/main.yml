@@ -1,0 +1,85 @@
+# This is a basic workflow to help you get started with Actions
+
+name: build
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    
+    tags:
+      - 'v*.*.*'
+
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: echo Hello, world!
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+        
+      - name: Test
+        run: |
+          echo $RELEASE_VERSION
+          echo ${{ env.RELEASE_VERSION }}
+          echo ${{ github.ref }}
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
+          docker run -v $GITHUB_WORKSPACE:/src cdrx/pyinstaller-windows:latest 'pyinstaller -F -i favicon.ico  --clean -y --dist ./ --workpath /tmp web.py'
+          docker run -v $GITHUB_WORKSPACE:/src cdrx/pyinstaller-linux:latest 'pyinstaller -F --clean -y --dist ./ --workpath /tmp -w web.py'
+          
+      #zip -r $GITHUB_WORKSPACE/onedrive_share_${{ env.RELEASE_VERSION }}.zip $GITHUB_WORKSPACE/main.exe $GITHUB_WORKSPACE/linux.exe
+        
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.RELEASE_VERSION }}
+          release_name: ${{ env.RELEASE_VERSION }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset-bot-linux
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          #asset_path: ${{ github.workspace }}/onedrive_share_${{ env.RELEASE_VERSION }}.zip
+          asset_path: web
+          asset_name: web
+          asset_content_type: application/octet-stream
+          #asset_content_type: application/zip
+      - name: Upload Release Asset
+        id: upload-release-asset-bot-win
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          #asset_path: ${{ github.workspace }}/onedrive_share_${{ env.RELEASE_VERSION }}.zip
+          asset_path: web.exe
+          asset_name: web.exe
+          #asset_content_type: application/octet-stream
+          asset_content_type: application/exe

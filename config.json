@@ -1,0 +1,15 @@
+{
+            "main_site" : "http://127.0.0.1:8096/",
+          "main_port": "8096",
+          "new_port" :"2333",
+          "api_key" : "1fb2477b5cb14d32843753xxxxxxxx",
+        "redirects" : "True",
+        "password_key": "True",
+        "password_value": "xxxx",
+          "replace_list ": [
+            {"from": "/media/video/","to": "http://xxxx.weinb.top/shi/"},
+            {"from": "/media/adult/","to": "http://xxxx.weinb.top/adult/emby/"}
+
+          ]
+
+}
